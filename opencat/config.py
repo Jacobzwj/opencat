@@ -9,8 +9,8 @@ log = logging.getLogger(__name__)
 
 # Defaults
 PROTOCOL_VERSION = 3
-CLIENT_ID = "opencat"
-CLIENT_MODE = "operator"
+CLIENT_ID = "webchat"
+CLIENT_MODE = "webchat"
 CLIENT_VERSION = "0.1.0"
 
 # Resolved at runtime

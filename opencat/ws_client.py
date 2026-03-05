@@ -34,6 +34,8 @@ class OpenClawClient:
         self.session_key: str | None = None
         self.connected = False
         self._connect_req_id: str | None = None
+        self._history_req_id: str | None = None
+        self._got_deltas = False
 
     def connect(self):
         self.ws = websocket.WebSocketApp(
@@ -79,6 +81,9 @@ class OpenClawClient:
                     log.error("Connect failed: %s", err)
                     self.on_error(str(err.get("message", err)))
                 self._connect_req_id = None
+            elif req_id == self._history_req_id:
+                self._history_req_id = None
+                self._handle_history_response(data)
             else:
                 if not data.get("ok"):
                     err = data.get("error", {})
@@ -90,11 +95,54 @@ class OpenClawClient:
             state = payload.get("state")
             text = self._extract_text(payload)
             if state == "delta" and text:
+                self._got_deltas = True
                 self.on_delta(text)
             elif state == "final":
-                self.on_final(text)
+                if text or self._got_deltas:
+                    # Normal path: streaming worked, use the text directly
+                    self.on_final(text)
+                else:
+                    # No deltas and no text in final — fetch via chat.history
+                    log.info("Empty final, fetching response via chat.history")
+                    self._fetch_history()
+                self._got_deltas = False
             elif state == "error":
+                self._got_deltas = False
                 self.on_chat_error(payload.get("errorMessage", "Unknown error"))
+
+    def _fetch_history(self):
+        """Request recent chat history to get the assistant's response."""
+        if self.ws and self.connected and self.session_key:
+            msg = protocol.make_chat_history(self.session_key, limit=5)
+            self._history_req_id = msg["id"]
+            self.ws.send(json.dumps(msg))
+
+    def _handle_history_response(self, data: dict):
+        """Extract the latest assistant message from chat.history response."""
+        if not data.get("ok"):
+            log.warning("chat.history failed: %s", data.get("error"))
+            self.on_final("")
+            return
+        payload = data.get("payload", {})
+        messages = payload.get("messages", [])
+        # Walk backwards to find the last assistant message
+        for msg in reversed(messages):
+            role = msg.get("role", "")
+            if role == "assistant":
+                content = msg.get("content", [])
+                if isinstance(content, str):
+                    text = content
+                else:
+                    text = "".join(
+                        b.get("text", "") for b in content
+                        if isinstance(b, dict) and b.get("type") == "text"
+                    )
+                if text:
+                    log.info("Got response via chat.history: %s", text[:100])
+                    self.on_final(text)
+                    return
+        log.warning("No assistant message found in chat.history")
+        self.on_final("")
 
     def _extract_text(self, payload: dict) -> str:
         message = payload.get("message", {})
@@ -121,6 +169,7 @@ class OpenClawClient:
             raw = json.dumps(msg)
             log.info("WS send: method=%s session=%s content=%s",
                      msg.get("method"), self.session_key, str(content)[:100])
+            self._got_deltas = False
             self.ws.send(raw)
         else:
             log.warning("send_message skipped: ws=%s connected=%s session=%s",

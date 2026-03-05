@@ -47,3 +47,16 @@ def make_chat_send(content, session_key: str) -> dict:
             "idempotencyKey": msg_id,
         },
     }
+
+
+def make_chat_history(session_key: str, limit: int = 5) -> dict:
+    """Build a chat.history request to fetch recent messages."""
+    return {
+        "type": "req",
+        "method": "chat.history",
+        "id": str(uuid.uuid4()),
+        "params": {
+            "sessionKey": session_key,
+            "limit": limit,
+        },
+    }
