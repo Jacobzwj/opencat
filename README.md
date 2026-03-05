@@ -35,6 +35,16 @@
 
 ---
 
+## Why OpenCat?
+
+If you're running [OpenClaw](https://github.com/nicepkg/openclaw) as your AI gateway, you might find:
+
+- **The official web panel is too cluttered** — you just want a quick, clean chat window
+- **Telegram / WhatsApp bots need a VPN** if you're in mainland China
+- **You want something that feels alive** — not another chat tab buried in your browser
+
+OpenCat puts a pixel-art cat on your desktop. Click it, and a warm-toned chat window pops up. That's it. No browser, no VPN, no noise.
+
 ## Screenshots
 
 <table>
@@ -53,18 +63,6 @@
 </table>
 
 **Toolbar:** `A-`/`A+` adjust font size &nbsp;|&nbsp; cube toggles 3D cat &nbsp;|&nbsp; `+` new chat &nbsp;|&nbsp; book icon opens history
-
----
-
-## Why OpenCat?
-
-If you're running [OpenClaw](https://github.com/nicepkg/openclaw) as your AI gateway, you might find:
-
-- **The official web panel is too cluttered** — you just want a quick, clean chat window
-- **Telegram / WhatsApp bots need a VPN** if you're in mainland China
-- **You want something that feels alive** — not another chat tab buried in your browser
-
-OpenCat puts a pixel-art cat on your desktop. Click it, and a warm-toned chat window pops up. That's it. No browser, no VPN, no noise.
 
 ## Features
 
