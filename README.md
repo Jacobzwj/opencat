@@ -9,8 +9,8 @@
 <h1 align="center">OpenCat — Desktop Client for OpenClaw</h1>
 
 <p align="center">
-  <b>A cute floating desktop cat for <a href="https://github.com/openclaw/openclaw">OpenClaw</a> AI gateway.</b><br>
-  No browser, no VPN — just a cat on your screen that chats with your AI.
+  <b>A cute desktop skin for <a href="https://github.com/openclaw/openclaw">OpenClaw</a> — same commands, same AI, just cuter.</b><br>
+  <code>pip install</code>, run <code>opencat</code>, done. Everything you do in OpenClaw works here.
 </p>
 
 <p align="center">

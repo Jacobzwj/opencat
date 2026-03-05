@@ -9,8 +9,8 @@
 <h1 align="center">OpenCat — OpenClaw 桌面客户端</h1>
 
 <p align="center">
-  <b>一只会聊天的桌面猫猫，连接你的 <a href="https://github.com/openclaw/openclaw">OpenClaw</a> AI 网关。</b><br>
-  不用浏览器，不用 VPN — 屏幕上的猫猫就是你的 AI 助手。
+  <b>给 <a href="https://github.com/openclaw/openclaw">OpenClaw</a> 套个可爱的壳 — 一样的指令，一样的 AI，只是更萌。</b><br>
+  <code>pip install</code> 一行装好，<code>opencat</code> 一行启动。OpenClaw 能做的，这里都能做。
 </p>
 
 <p align="center">
