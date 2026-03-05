@@ -1,0 +1,157 @@
+:root {
+  --bg: #111327;
+  --panel: #1a1f3d;
+  --panel-soft: #20274a;
+  --text: #e6e9ff;
+  --muted: #a3abcf;
+  --green: #7fe0a0;
+  --red: #ff6b6b;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  width: 100%; height: 100%;
+  font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.app {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 46px 180px 1fr 58px;
+}
+
+/* ── Header ── */
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 12px;
+  background: var(--panel);
+  border-bottom: 1px solid #27305e;
+}
+
+.status-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.status-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.status-connected    { background: var(--green); }
+.status-connecting   { background: #f0c040; }
+.status-disconnected { background: #8a8fae; }
+.status-error        { background: var(--red); }
+
+.brand { color: var(--green); font-weight: 700; }
+
+/* ── Cat panel ── */
+.cat-panel {
+  background: linear-gradient(180deg, #161b37 0%, #12162f 100%);
+  border-bottom: 1px solid #27305e;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#cat-gif {
+  width: 128px; height: 128px;
+  object-fit: contain;
+  border-radius: 16px;
+  background: #0f1330;
+  border: 1px solid #293160;
+}
+
+.state-label {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+/* ── Messages ── */
+.messages {
+  padding: 10px;
+  overflow-y: auto;
+  background: var(--bg);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.bubble {
+  max-width: 85%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  line-height: 1.45;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 14px;
+}
+
+.bubble.user {
+  margin-left: auto;
+  background: #2b376f;
+}
+
+.bubble.assistant {
+  margin-right: auto;
+  background: var(--panel-soft);
+}
+
+.bubble.error {
+  margin-right: auto;
+  background: #45202a;
+  border: 1px solid #723042;
+}
+
+/* ── Composer ── */
+.composer {
+  background: var(--panel);
+  border-top: 1px solid #27305e;
+  display: grid;
+  grid-template-columns: 1fr 72px;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+}
+
+#msg-input {
+  width: 100%;
+  border: 1px solid #334080;
+  background: #151b37;
+  color: var(--text);
+  border-radius: 10px;
+  padding: 9px 10px;
+  font-size: 14px;
+}
+
+#msg-input:focus {
+  outline: none;
+  border-color: #5d6cc0;
+}
+
+#send-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 0;
+  font-weight: 700;
+  background: var(--green);
+  color: #142227;
+  cursor: pointer;
+}
+
+#send-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}

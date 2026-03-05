@@ -1,0 +1,31 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "opencat"
+version = "0.1.0"
+description = "OpenCat — a cute floating desktop cat companion for OpenClaw AI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["opencat", "openclaw", "desktop-pet", "ai-chat"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+    "Topic :: Desktop Environment",
+]
+dependencies = [
+    "customtkinter>=5.2",
+    "Pillow>=10.0",
+    "websocket-client>=1.6",
+]
+
+[project.scripts]
+opencat = "opencat.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["opencat*"]
+
+[tool.setuptools.package-data]
+"opencat.ui" = ["*.html", "*.css", "*.js", "assets/*.json", "assets/*.gif", "assets/*.md"]

@@ -1,0 +1,11 @@
+{
+  "idle": [
+    "assets/error.gif",
+    "assets/idle.gif",
+    "assets/connecting.gif"
+  ],
+  "sleeping": "assets/talking.gif",
+  "thinking": "assets/thinking.gif",
+  "done": "assets/done.gif",
+  "error": "assets/sleeping.gif"
+}

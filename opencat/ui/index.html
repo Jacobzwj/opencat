@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>OpenCat</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app">
+      <header class="topbar">
+        <div class="status-wrap">
+          <span id="status-dot" class="status-dot status-disconnected"></span>
+          <span id="status-text">Disconnected</span>
+        </div>
+        <span class="brand">OpenCat</span>
+      </header>
+
+      <section class="cat-panel">
+        <img id="cat-gif" alt="cat state animation" />
+        <div id="state-label" class="state-label">sleeping</div>
+      </section>
+
+      <section id="messages" class="messages"></section>
+
+      <footer class="composer">
+        <input id="msg-input" type="text" placeholder="Ask something..." />
+        <button id="send-btn">Send</button>
+      </footer>
+    </div>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Claude Code
+.claude/
+
+# Project-specific: dev scripts / backup assets
+opencat/generate_*.py
+opencat/ui/assets/backup_before_replace/
+original_16_figure/
+wechat_export/
+tools/
+comfy_*.json
+
+# Legacy code (superseded by opencat/ package)
+/cat/
+/chat/
+/core/
+/network/
+/config.py
+/main.py
