@@ -43,6 +43,7 @@ def make_chat_send(content, session_key: str) -> dict:
         "params": {
             "message": content,
             "sessionKey": session_key,
+            "deliver": False,
             "idempotencyKey": msg_id,
         },
     }

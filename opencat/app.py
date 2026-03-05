@@ -1788,21 +1788,27 @@ class ChatWindow:
         return txt
 
     def _scroll_bottom(self):
-        """Scroll messages to bottom. Debounced — multiple calls within one
-        event-loop cycle collapse into a single scroll via after_idle."""
+        """Scroll messages to bottom. Debounced — multiple calls within a
+        short window collapse into a single delayed scroll so tkinter has
+        time to finish layout before we reposition the viewport."""
         if getattr(self, "_scroll_pending", False):
             return
         self._scroll_pending = True
         try:
-            self.window.after_idle(self._do_scroll)
+            self.window.after(30, self._do_scroll)
         except Exception:
             self._scroll_pending = False
 
     def _do_scroll(self):
         self._scroll_pending = False
         try:
-            self.msg_frame.update_idletasks()
-            self.msg_frame._parent_canvas.yview_moveto(1.0)
+            canvas = self.msg_frame._parent_canvas
+            # Sync scrollregion with actual content size before scrolling,
+            # otherwise yview_moveto(1.0) can overshoot during rapid streaming.
+            bbox = canvas.bbox("all")
+            if bbox:
+                canvas.configure(scrollregion=bbox)
+            canvas.yview_moveto(1.0)
         except Exception:
             pass
 
@@ -1857,8 +1863,15 @@ class ChatWindow:
             txt = self._streaming_bubble
             # Append only — avoids delete+reinsert flicker
             txt.insert("end", text)
-            self._fit_text_height(txt)
-            self._scroll_bottom()
+            # Throttle expensive height-refit during streaming; _scroll_bottom
+            # is already debounced so just schedule a combined refit+scroll.
+            if not getattr(self, "_delta_fit_pending", False):
+                self._delta_fit_pending = True
+                def _deferred_fit(t=txt):
+                    self._delta_fit_pending = False
+                    self._fit_text_height(t)
+                    self._scroll_bottom()
+                self.window.after(50, _deferred_fit)
 
     def _on_final(self, text):
         self._destroy_think_bubble()   # no-op if already gone
