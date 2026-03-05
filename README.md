@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-  <img src="docs/idle.gif" width="120" />
+  <img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/idle.gif" width="120" />
 </p>
 
 <h1 align="center">OpenCat — Desktop Client for OpenClaw</h1>
@@ -28,13 +28,13 @@
     <td align="center"><b>Sleeping</b></td>
   </tr>
   <tr>
-    <td align="center"><img src="docs/idle.gif" width="90" /><br><sub>yarn ball</sub></td>
-    <td align="center"><img src="docs/error.gif" width="90" /><br><sub>scratching</sub></td>
-    <td align="center"><img src="docs/connecting.gif" width="90" /><br><sub>rolling</sub></td>
-    <td align="center"><img src="docs/talking.gif" width="90" /><br><sub>running</sub></td>
-    <td align="center"><img src="docs/thinking.gif" width="90" /><br><sub>eating</sub></td>
-    <td align="center"><img src="docs/done.gif" width="90" /><br><sub>pooping</sub></td>
-    <td align="center"><img src="docs/sleeping.gif" width="90" /><br><sub>sleeping</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/idle.gif" width="90" /><br><sub>yarn ball</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/error.gif" width="90" /><br><sub>scratching</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/connecting.gif" width="90" /><br><sub>rolling</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/talking.gif" width="90" /><br><sub>running</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/thinking.gif" width="90" /><br><sub>eating</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/done.gif" width="90" /><br><sub>pooping</sub></td>
+    <td align="center"><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/sleeping.gif" width="90" /><br><sub>sleeping</sub></td>
   </tr>
 </table>
 
@@ -58,8 +58,8 @@ OpenCat puts a pixel-art cat on your desktop. Click it, and a warm-toned chat wi
     <td align="center"><b>History Sidebar</b></td>
   </tr>
   <tr>
-    <td><img src="docs/chat.png" width="400" /></td>
-    <td><img src="docs/chat-history.png" width="480" /></td>
+    <td><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/chat.png" width="400" /></td>
+    <td><img src="https://raw.githubusercontent.com/Jacobzwj/opencat/master/docs/chat-history.png" width="480" /></td>
   </tr>
   <tr>
     <td><sub>Click the cat to open the chat window. Warm pastel UI with streaming AI replies.</sub></td>
