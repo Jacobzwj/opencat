@@ -63,6 +63,7 @@ class OpenClawClient:
             return
 
         msg_type = data.get("type")
+        log.debug("WS recv: type=%s data=%s", msg_type, raw[:500])
 
         if msg_type == "res":
             req_id = data.get("id")
@@ -117,7 +118,13 @@ class OpenClawClient:
     def send_message(self, content):
         if self.ws and self.connected and self.session_key:
             msg = protocol.make_chat_send(content, self.session_key)
-            self.ws.send(json.dumps(msg))
+            raw = json.dumps(msg)
+            log.info("WS send: method=%s session=%s content=%s",
+                     msg.get("method"), self.session_key, str(content)[:100])
+            self.ws.send(raw)
+        else:
+            log.warning("send_message skipped: ws=%s connected=%s session=%s",
+                        bool(self.ws), self.connected, self.session_key)
 
     def disconnect(self):
         if self.ws:
