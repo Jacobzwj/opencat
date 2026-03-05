@@ -14,6 +14,7 @@
 </p>
 
 <p align="center">
+  <a href="https://pypi.org/project/opencat/"><img src="https://img.shields.io/pypi/v/opencat?color=orange&logo=pypi&logoColor=white" /></a>
   <img src="https://img.shields.io/badge/python-3.10+-blue?logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey" />
   <img src="https://img.shields.io/badge/license-MIT-green" />
@@ -102,7 +103,7 @@ You need a running [OpenClaw](https://github.com/openclaw/openclaw) gateway. Ope
 ### Install
 
 ```bash
-pip install git+https://github.com/Jacobzwj/opencat.git
+pip install opencat
 ```
 
 ### Run
