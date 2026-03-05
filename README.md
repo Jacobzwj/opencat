@@ -15,19 +15,23 @@
   <img src="https://img.shields.io/badge/license-MIT-green" />
 </p>
 
-<p align="center">
-  <table>
-    <tr>
-      <td align="center"><img src="docs/idle.gif" width="100" /><br><sub>Idle</sub></td>
-      <td align="center"><img src="docs/thinking.gif" width="100" /><br><sub>Thinking</sub></td>
-      <td align="center"><img src="docs/talking.gif" width="100" /><br><sub>Talking</sub></td>
-      <td align="center"><img src="docs/done.gif" width="100" /><br><sub>Done</sub></td>
-      <td align="center"><img src="docs/sleeping.gif" width="100" /><br><sub>Sleeping</sub></td>
-      <td align="center"><img src="docs/error.gif" width="100" /><br><sub>Error</sub></td>
-      <td align="center"><img src="docs/connecting.gif" width="100" /><br><sub>Connecting</sub></td>
-    </tr>
-  </table>
-</p>
+<table align="center">
+  <tr>
+    <td align="center" colspan="4"><b>Idle</b> (random rotation)</td>
+    <td align="center"><b>Thinking</b></td>
+    <td align="center"><b>Done</b></td>
+    <td align="center"><b>Sleeping</b></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="docs/idle.gif" width="90" /><br><sub>yarn ball</sub></td>
+    <td align="center"><img src="docs/error.gif" width="90" /><br><sub>scratching</sub></td>
+    <td align="center"><img src="docs/connecting.gif" width="90" /><br><sub>rolling</sub></td>
+    <td align="center"><img src="docs/talking.gif" width="90" /><br><sub>resting</sub></td>
+    <td align="center"><img src="docs/thinking.gif" width="90" /><br><sub>eating</sub></td>
+    <td align="center"><img src="docs/done.gif" width="90" /><br><sub>pooping</sub></td>
+    <td align="center"><img src="docs/sleeping.gif" width="90" /><br><sub>pushing box</sub></td>
+  </tr>
+</table>
 
 ---
 
@@ -103,17 +107,14 @@ OpenCat is a pure client — it connects to your self-hosted OpenClaw gateway ov
 
 ## Customizing the Cat
 
-Cat animations are GIF files in `opencat/ui/assets/`. Replace them with your own pixel art:
+Cat animations live in `opencat/ui/assets/` and are mapped via `manifest.json`. Replace them with your own pixel art:
 
-| File | State |
-|------|-------|
-| `idle.gif` | Default state, hanging out |
-| `thinking.gif` | Waiting for AI response |
-| `talking.gif` | AI is streaming a reply |
-| `done.gif` | Response complete |
-| `sleeping.gif` | Idle for a while |
-| `connecting.gif` | Connecting to gateway |
-| `error.gif` | Connection error |
+| State | What happens | Default GIF |
+|-------|-------------|-------------|
+| **Idle** | Connected, waiting for user. Randomly rotates through a pool. | `idle.gif`, `error.gif`, `connecting.gif`, `talking.gif` |
+| **Thinking** | User sent a message, waiting for AI + streaming reply | `thinking.gif` (eating) |
+| **Done** | Response complete, stays until next message | `done.gif` (pooping) |
+| **Sleeping** | Not connected or idle for a long time | `sleeping.gif` (pushing box) |
 
 ## License
 

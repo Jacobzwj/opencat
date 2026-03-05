@@ -1,10 +1,11 @@
 {
   "idle": [
-    "assets/error.gif",
     "assets/idle.gif",
-    "assets/connecting.gif"
+    "assets/error.gif",
+    "assets/connecting.gif",
+    "assets/talking.gif"
   ],
-  "sleeping": "assets/talking.gif",
+  "sleeping": "assets/sleeping.gif",
   "thinking": "assets/thinking.gif",
   "done": "assets/done.gif",
   "error": "assets/sleeping.gif"
