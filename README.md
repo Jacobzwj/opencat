@@ -1,3 +1,7 @@
+<p align="right">
+  <a href="README.zh-CN.md">中文</a> | English
+</p>
+
 <p align="center">
   <img src="docs/idle.gif" width="120" />
 </p>
