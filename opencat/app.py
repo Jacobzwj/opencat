@@ -47,7 +47,6 @@ MAX_CAT_DIM = 220
 TRANSPARENT_COLOR = "#010101"
 ANIMATION_INTERVAL_MS = 150  # ms per frame
 DONE_DISPLAY_MS = 3000
-IDLE_SLEEP_TIMEOUT_S = 60  # seconds of idle before sleeping
 IDLE_BEHAVIOR_INTERVAL_MS = (15000, 30000)  # ms between idle behavior switches
 DEFAULT_CHAT_WIDTH = 600
 DEFAULT_CHAT_HEIGHT = 820
@@ -284,7 +283,7 @@ DELTA_FLUSH_MS = 40  # batch streaming deltas, flush to UI at this interval
 class Controller:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.state = CatState.IDLE
+        self.state = CatState.SLEEPING  # Start sleeping until connected
         self.status_text = "Connecting..."
         self.status_color = "#f0c040"
         self._streaming_active = False
@@ -357,8 +356,8 @@ class Controller:
 
     def _set_state(self, new_state: CatState):
         self.state = new_state
-        if new_state == CatState.IDLE:
-            self._reset_idle_sleep_timer()
+        # No idle→sleeping timer: sleeping is only for disconnected state,
+        # handled directly in _handle_disconnected / _handle_connected.
         for cb in self.on_state_changed:
             cb(new_state)
 
@@ -369,15 +368,6 @@ class Controller:
             cb(text, color)
 
     # ── Timers (fire on background threads → dispatch to main) ──
-
-    def _reset_idle_sleep_timer(self):
-        self._cancel_idle_sleep_timer()
-        self._idle_sleep_timer = threading.Timer(
-            IDLE_SLEEP_TIMEOUT_S,
-            lambda: self._to_main(self._set_state, CatState.SLEEPING),
-        )
-        self._idle_sleep_timer.daemon = True
-        self._idle_sleep_timer.start()
 
     def _cancel_idle_sleep_timer(self):
         if self._idle_sleep_timer:
@@ -433,14 +423,15 @@ class Controller:
     def _handle_connected(self):
         self._reconnect_delay = 5.0
         self._set_status("Connected", "#7fe0a0")
-        if self.state == CatState.ERROR:
+        self._cancel_idle_sleep_timer()
+        if self.state in (CatState.ERROR, CatState.SLEEPING):
             self._set_state(CatState.IDLE)
-        elif self.state == CatState.IDLE:
-            self._reset_idle_sleep_timer()
 
     def _handle_disconnected(self):
         self._streaming_active = False
+        self._cancel_idle_sleep_timer()
         self._set_status("Disconnected", "#888888")
+        self._set_state(CatState.SLEEPING)
         self._schedule_reconnect()
 
     def _handle_error(self, msg: str):
@@ -563,7 +554,8 @@ class FloatingCat:
         self.canvas.bind("<Leave>", self._hide_tooltip)
 
         self._position()
-        self._start_idle_cycling()
+        # Set initial GIF based on controller's current state
+        self._on_state(controller.state)
         self._animate()
 
         controller.on_state_changed.append(self._on_state)
@@ -747,7 +739,10 @@ class FloatingCat:
         self._tooltip.configure(bg=tip_bg)
 
         text = "滚轮缩放  |  左键聊天  |  右键菜单"
-        w, h, tail_h = 310, 44, 10
+        tip_font = tkfont.Font(family="Segoe UI", size=12)
+        text_w = tip_font.measure(text)
+        w = text_w + 40  # padding on both sides
+        h, tail_h = 44, 10
         total_h = h + tail_h
         cvs = tk.Canvas(self._tooltip, width=w, height=total_h,
                         bg=tip_bg, highlightthickness=0)
@@ -774,7 +769,7 @@ class FloatingCat:
         cvs.create_line(tx - 9, h, tx + 9, h, fill="#fff0e8", width=3)
         # Text
         cvs.create_text(w // 2, h // 2, text=text,
-                        font=("Segoe UI", 12), fill="#5b3f2b")
+                        font=tip_font, fill="#5b3f2b")
 
         x = event.x_root - w // 2
         y = event.y_root - total_h - 8
@@ -1806,6 +1801,7 @@ class ChatWindow:
     def _do_scroll(self):
         self._scroll_pending = False
         try:
+            self.msg_frame.update_idletasks()
             self.msg_frame._parent_canvas.yview_moveto(1.0)
         except Exception:
             pass
@@ -2101,7 +2097,22 @@ class ChatWindow:
             ribbon = ctk.CTkFrame(tab, fg_color=color, width=4, corner_radius=2)
             ribbon.pack(side="left", fill="y", padx=(4, 0), pady=6)
 
-            # Text area
+            # Delete button packed BEFORE txt_frame so it reserves space
+            # on the right and doesn't get pushed off-screen by expand.
+            del_btn = None
+            if not is_active:
+                del_btn = ctk.CTkLabel(
+                    tab, text="\u2715", width=16, height=16,
+                    font=("Segoe UI", 9), text_color=CHAT_TEXT_MUTED,
+                    fg_color="transparent", cursor="hand2",
+                )
+                del_btn.pack(side="right", padx=(0, 4), pady=2)
+
+                def _on_delete(_e, s=sid):
+                    self._delete_session(s)
+                del_btn.bind("<Button-1>", _on_delete)
+
+            # Text area (packed after del_btn so it fills remaining space)
             txt_frame = ctk.CTkFrame(tab, fg_color="transparent", corner_radius=0)
             txt_frame.pack(side="left", fill="both", expand=True, padx=(6, 4))
 
@@ -2138,23 +2149,14 @@ class ChatWindow:
             )
             sub_lbl.pack(fill="x", anchor="w", pady=(0, 2))
 
-            # Delete button (only for non-active sessions)
-            if not is_active:
-                del_btn = ctk.CTkLabel(
-                    tab, text="\u2715", width=16, height=16,
-                    font=("Segoe UI", 9), text_color=CHAT_TEXT_MUTED,
-                    fg_color="transparent", cursor="hand2",
-                )
-                del_btn.pack(side="right", padx=(0, 4), pady=2)
-
-                def _on_delete(_e, s=sid):
-                    self._delete_session(s)
-                del_btn.bind("<Button-1>", _on_delete)
-
             # Click handler — bind to all children
             def _on_click(_e, s=sid):
                 self._switch_to_session(s)
-            for w in (tab, ribbon, txt_frame, title_lbl, sub_lbl):
+            click_targets = [tab, ribbon, txt_frame, title_lbl, sub_lbl]
+            if del_btn is None:
+                # Only bind click-to-switch on non-delete widgets
+                pass
+            for w in click_targets:
                 w.bind("<Button-1>", _on_click)
 
             self._history_items.append(tab)

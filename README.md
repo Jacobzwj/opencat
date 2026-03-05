@@ -35,6 +35,27 @@
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>Chat + Cat</b></td>
+    <td align="center"><b>History Sidebar</b></td>
+  </tr>
+  <tr>
+    <td><img src="docs/chat.png" width="400" /></td>
+    <td><img src="docs/chat-history.png" width="480" /></td>
+  </tr>
+  <tr>
+    <td><sub>Click the cat to open the chat window. Warm pastel UI with streaming AI replies.</sub></td>
+    <td><sub>Conversation history with color-coded bookmarks. Switch or delete sessions anytime.</sub></td>
+  </tr>
+</table>
+
+**Toolbar:** `A-`/`A+` adjust font size &nbsp;|&nbsp; cube toggles 3D cat &nbsp;|&nbsp; `+` new chat &nbsp;|&nbsp; book icon opens history
+
+---
+
 ## Why OpenCat?
 
 If you're running [OpenClaw](https://github.com/nicepkg/openclaw) as your AI gateway, you might find:
@@ -114,7 +135,7 @@ Cat animations live in `opencat/ui/assets/` and are mapped via `manifest.json`. 
 | **Idle** | Connected, waiting for user. Randomly rotates through a pool. | `idle.gif`, `error.gif`, `connecting.gif`, `talking.gif` |
 | **Thinking** | User sent a message, waiting for AI + streaming reply | `thinking.gif` (eating) |
 | **Done** | Response complete, stays until next message | `done.gif` (pooping) |
-| **Sleeping** | Not connected or idle for a long time | `sleeping.gif` (pushing box) |
+| **Sleeping** | Not connected to OpenClaw | `sleeping.gif` (sleeping in box) |
 
 ## License
 
