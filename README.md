@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="opencat/ui/assets/idle.gif" width="120" />
+  <img src="docs/idle.gif" width="120" />
 </p>
 
 <h1 align="center">OpenCat</h1>
@@ -13,6 +13,20 @@
   <img src="https://img.shields.io/badge/python-3.10+-blue?logo=python&logoColor=white" />
   <img src="https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey" />
   <img src="https://img.shields.io/badge/license-MIT-green" />
+</p>
+
+<p align="center">
+  <table>
+    <tr>
+      <td align="center"><img src="docs/idle.gif" width="100" /><br><sub>Idle</sub></td>
+      <td align="center"><img src="docs/thinking.gif" width="100" /><br><sub>Thinking</sub></td>
+      <td align="center"><img src="docs/talking.gif" width="100" /><br><sub>Talking</sub></td>
+      <td align="center"><img src="docs/done.gif" width="100" /><br><sub>Done</sub></td>
+      <td align="center"><img src="docs/sleeping.gif" width="100" /><br><sub>Sleeping</sub></td>
+      <td align="center"><img src="docs/error.gif" width="100" /><br><sub>Error</sub></td>
+      <td align="center"><img src="docs/connecting.gif" width="100" /><br><sub>Connecting</sub></td>
+    </tr>
+  </table>
 </p>
 
 ---
