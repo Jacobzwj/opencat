@@ -1,6 +1,6 @@
 """Local session history persistence for OpenCat.
 
-Stores chat messages as JSON files under ~/.openclaw/history/.
+Stores chat messages as JSON files under ~/.opencat/history/.
 Thread-safe for use from WebSocket callback threads.
 """
 
@@ -24,7 +24,7 @@ class SessionManager:
 
     def __init__(self, history_dir: str | None = None):
         if history_dir is None:
-            history_dir = os.path.join(os.path.expanduser("~"), ".openclaw", "history")
+            history_dir = os.path.join(os.path.expanduser("~"), ".opencat", "history")
         self._dir = Path(history_dir)
         self._dir.mkdir(parents=True, exist_ok=True)
         (self._dir / "images").mkdir(exist_ok=True)
