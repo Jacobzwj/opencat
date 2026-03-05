@@ -79,6 +79,20 @@ OpenCat puts a pixel-art cat on your desktop. Click it, and a warm-toned chat wi
 - **Remote connection** — connect to an OpenClaw gateway on another machine via Tailscale or any network
 - **Lightweight** — pure Python, ~100 KB installed, no web runtime
 
+## Chat Commands
+
+OpenCat supports [OpenClaw](https://github.com/openclaw/openclaw) native commands — type them directly in the chat input:
+
+| Command | Description |
+|---------|-------------|
+| `/status` | View current session status and token usage |
+| `/new` | Start a new conversation (resets server session) |
+| `/compact` | Compress context to save tokens |
+| `/think <level>` | Set thinking depth |
+| `/stop` | Abort the current response |
+| `/clear` | Clear local chat display (does not reset server session) |
+| `/help` | Show all available commands |
+
 ## Quick Start
 
 ### Prerequisites

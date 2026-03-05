@@ -79,6 +79,20 @@ OpenCat 在你的桌面放一只像素猫。点它，弹出一个暖色调聊天
 - **远程连接** — 通过 Tailscale 或任意网络连接远程 OpenClaw 网关
 - **轻量** — 纯 Python，安装约 100 KB，无 Web 运行时
 
+## 聊天指令
+
+OpenCat 支持 [OpenClaw](https://github.com/openclaw/openclaw) 原生指令 — 直接在聊天输入框中输入：
+
+| 指令 | 说明 |
+|------|------|
+| `/status` | 查看当前 session 状态和 token 用量 |
+| `/new` | 开始新对话（重置服务端 session） |
+| `/compact` | 压缩上下文，节省 token |
+| `/think <level>` | 设置思考深度 |
+| `/stop` | 中止当前回复 |
+| `/clear` | 清空本地聊天显示（不重置服务端 session） |
+| `/help` | 显示所有可用指令 |
+
 ## 快速开始
 
 ### 前置条件
