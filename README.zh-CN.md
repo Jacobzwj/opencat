@@ -112,6 +112,12 @@ pip install opencat
 opencat
 ```
 
+如果提示找不到命令，用：
+
+```bash
+python -m opencat
+```
+
 OpenCat 会自动读取 `~/.openclaw/openclaw.json` 中的网关配置。
 
 ### 命令行参数

@@ -112,6 +112,12 @@ pip install opencat
 opencat
 ```
 
+If `opencat` is not recognized, use:
+
+```bash
+python -m opencat
+```
+
 OpenCat reads your gateway config from `~/.openclaw/openclaw.json` automatically.
 
 ### CLI Options
