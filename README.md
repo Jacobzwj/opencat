@@ -2,11 +2,11 @@
   <img src="docs/idle.gif" width="120" />
 </p>
 
-<h1 align="center">OpenCat</h1>
+<h1 align="center">OpenCat — Desktop Client for OpenClaw</h1>
 
 <p align="center">
-  <b>A cute floating desktop cat that talks to your AI.</b><br>
-  Lightweight chat companion for <a href="https://github.com/nicepkg/openclaw">OpenClaw</a> — no browser, no Electron, just a cat on your screen.
+  <b>A cute floating desktop cat for <a href="https://github.com/nicepkg/openclaw">OpenClaw</a> AI gateway.</b><br>
+  No browser, no Electron, no VPN — just a cat on your screen that chats with your AI.
 </p>
 
 <p align="center">
