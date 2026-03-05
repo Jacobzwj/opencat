@@ -26,10 +26,10 @@
     <td align="center"><img src="docs/idle.gif" width="90" /><br><sub>yarn ball</sub></td>
     <td align="center"><img src="docs/error.gif" width="90" /><br><sub>scratching</sub></td>
     <td align="center"><img src="docs/connecting.gif" width="90" /><br><sub>rolling</sub></td>
-    <td align="center"><img src="docs/talking.gif" width="90" /><br><sub>resting</sub></td>
+    <td align="center"><img src="docs/talking.gif" width="90" /><br><sub>running</sub></td>
     <td align="center"><img src="docs/thinking.gif" width="90" /><br><sub>eating</sub></td>
     <td align="center"><img src="docs/done.gif" width="90" /><br><sub>pooping</sub></td>
-    <td align="center"><img src="docs/sleeping.gif" width="90" /><br><sub>pushing box</sub></td>
+    <td align="center"><img src="docs/sleeping.gif" width="90" /><br><sub>sleeping</sub></td>
   </tr>
 </table>
 
