@@ -9,8 +9,8 @@
 <h1 align="center">OpenCat — Desktop Client for OpenClaw</h1>
 
 <p align="center">
-  <b>A cute floating desktop cat for <a href="https://github.com/nicepkg/openclaw">OpenClaw</a> AI gateway.</b><br>
-  No browser, no Electron, no VPN — just a cat on your screen that chats with your AI.
+  <b>A cute floating desktop cat for <a href="https://github.com/openclaw/openclaw">OpenClaw</a> AI gateway.</b><br>
+  No browser, no VPN — just a cat on your screen that chats with your AI.
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@
 
 ## Why OpenCat?
 
-If you're running [OpenClaw](https://github.com/nicepkg/openclaw) as your AI gateway, you might find:
+If you're running [OpenClaw](https://github.com/openclaw/openclaw) as your AI gateway, you might find:
 
 - **The official web panel is too cluttered** — you just want a quick, clean chat window
 - **Telegram / WhatsApp bots need a VPN** if you're in mainland China
@@ -77,13 +77,13 @@ OpenCat puts a pixel-art cat on your desktop. Click it, and a warm-toned chat wi
 - **Image attachments** — paste or drag images into the chat (clipboard + file picker)
 - **Cross-platform** — Windows, macOS, Linux (native transparency on Windows, graceful fallback elsewhere)
 - **Remote connection** — connect to an OpenClaw gateway on another machine via Tailscale or any network
-- **Lightweight** — pure Python, ~100 KB installed, no Electron, no web runtime
+- **Lightweight** — pure Python, ~100 KB installed, no web runtime
 
 ## Quick Start
 
 ### Prerequisites
 
-You need a running [OpenClaw](https://github.com/nicepkg/openclaw) gateway. OpenCat connects to it via WebSocket.
+You need a running [OpenClaw](https://github.com/openclaw/openclaw) gateway. OpenCat connects to it via WebSocket.
 
 ### Install
 

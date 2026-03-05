@@ -9,8 +9,8 @@
 <h1 align="center">OpenCat — OpenClaw 桌面客户端</h1>
 
 <p align="center">
-  <b>一只会聊天的桌面猫猫，连接你的 <a href="https://github.com/nicepkg/openclaw">OpenClaw</a> AI 网关。</b><br>
-  不用浏览器，不用 Electron，不用 VPN — 屏幕上的猫猫就是你的 AI 助手。
+  <b>一只会聊天的桌面猫猫，连接你的 <a href="https://github.com/openclaw/openclaw">OpenClaw</a> AI 网关。</b><br>
+  不用浏览器，不用 VPN — 屏幕上的猫猫就是你的 AI 助手。
 </p>
 
 <p align="center">
@@ -41,7 +41,7 @@
 
 ## 为什么选 OpenCat？
 
-如果你在用 [OpenClaw](https://github.com/nicepkg/openclaw) 作为 AI 网关，你可能会发现：
+如果你在用 [OpenClaw](https://github.com/openclaw/openclaw) 作为 AI 网关，你可能会发现：
 
 - **官方 Web 面板太臃肿** — 你只想要一个干净的聊天窗口
 - **Telegram / WhatsApp 机器人需要翻墙** — 对国内用户不友好
@@ -77,13 +77,13 @@ OpenCat 在你的桌面放一只像素猫。点它，弹出一个暖色调聊天
 - **图片附件** — 粘贴或拖拽图片到聊天框（支持剪贴板 + 文件选择）
 - **跨平台** — Windows、macOS、Linux（Windows 原生透明，其他平台优雅降级）
 - **远程连接** — 通过 Tailscale 或任意网络连接远程 OpenClaw 网关
-- **轻量** — 纯 Python，安装约 100 KB，无 Electron，无 Web 运行时
+- **轻量** — 纯 Python，安装约 100 KB，无 Web 运行时
 
 ## 快速开始
 
 ### 前置条件
 
-你需要一个正在运行的 [OpenClaw](https://github.com/nicepkg/openclaw) 网关。OpenCat 通过 WebSocket 连接到它。
+你需要一个正在运行的 [OpenClaw](https://github.com/openclaw/openclaw) 网关。OpenCat 通过 WebSocket 连接到它。
 
 ### 安装
 
