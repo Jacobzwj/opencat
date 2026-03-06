@@ -1,6 +1,7 @@
 """WebSocket connection manager for OpenClaw gateway."""
 
 import json
+import os
 import threading
 import logging
 from typing import Callable
@@ -45,9 +46,20 @@ class OpenClawClient:
             on_close=self._on_close,
             on_error=self._on_error,
         )
+        run_kwargs: dict = {"ping_interval": 30, "ping_timeout": 10}
+        # Local gateway must bypass HTTP proxy — localhost traffic should
+        # never be proxied.  This only adds loopback addresses to no_proxy;
+        # all other proxy settings remain untouched.
+        if config.gateway_host in ("127.0.0.1", "localhost", "::1"):
+            no = os.environ.get("no_proxy", "")
+            for h in ("127.0.0.1", "localhost", "::1"):
+                if h not in no:
+                    no = f"{h},{no}" if no else h
+            os.environ["no_proxy"] = no
+            os.environ["NO_PROXY"] = no
         self._thread = threading.Thread(
             target=self.ws.run_forever,
-            kwargs={"ping_interval": 30, "ping_timeout": 10},
+            kwargs=run_kwargs,
             daemon=True,
         )
         self._thread.start()
