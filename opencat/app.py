@@ -32,10 +32,16 @@ from opencat.platform_utils import (
     apply_borderless,
     apply_borderless_focusable,
     apply_borderless_shadow,
+    apply_mac_clear_bg,
+    apply_mac_transparent,
     apply_transparent_color,
     dwm_flush,
     get_work_area,
+    mac_make_key_window,
+    resize_mac_image_view,
     set_dpi_awareness,
+    setup_mac_image_window,
+    update_mac_image,
 )
 from opencat.state import CatState
 from opencat.ws_client import OpenClawClient
@@ -192,7 +198,13 @@ class _CatContextMenu:
         apply_borderless(self._win)
         self._win.attributes("-topmost", True)
         apply_transparent_color(self._win, TRANSPARENT_COLOR)
-        bg_color = TRANSPARENT_COLOR if IS_WIN else "#fff0e8"
+        apply_mac_transparent(self._win)
+        if IS_MAC:
+            bg_color = "systemTransparent"
+        elif IS_WIN:
+            bg_color = TRANSPARENT_COLOR
+        else:
+            bg_color = "#fff0e8"
         self._win.configure(bg=bg_color)
         self._win.withdraw()
 
@@ -531,6 +543,8 @@ class FloatingCat:
         self._idle_cycle_after_id: str | None = None
         self._on_hide_chat = None  # callback set by run_app
         self._mini_win: tk.Toplevel | None = None
+        self._is_catball = False  # True when cat is hidden and showing catball
+        self._catball_pil: Image.Image | None = None
         self._tooltip: tk.Toplevel | None = None
         self._ctx_menu = _CatContextMenu(root)
 
@@ -540,15 +554,10 @@ class FloatingCat:
         apply_borderless(self.win)
         self.win.attributes("-topmost", True)
         apply_transparent_color(self.win, TRANSPARENT_COLOR)
-        if IS_MAC:
-            # macOS: use native transparency (only for the cat sprite window)
-            try:
-                self.win.attributes("-transparent", True)
-                cat_bg = "systemTransparent"
-            except Exception:
-                cat_bg = "#f0f0f0"
-        elif IS_WIN:
+        if IS_WIN:
             cat_bg = TRANSPARENT_COLOR
+        elif IS_MAC:
+            cat_bg = "systemTransparent"
         else:
             cat_bg = "#f0f0f0"
         self.win.configure(bg=cat_bg)
@@ -557,15 +566,31 @@ class FloatingCat:
                                 bg=cat_bg, highlightthickness=0)
         self.canvas.pack()
 
+        # macOS: native NSImageView for transparent GIF rendering
+        # (Tk create_image is invisible on transparent macOS windows)
+        self._mac_image_view = setup_mac_image_window(
+            self.win, self.cat_width, self.cat_height,
+        )
+
+        self._click_after_id: str | None = None
         self.canvas.bind("<ButtonPress-1>", self._press)
         self.canvas.bind("<B1-Motion>", self._drag)
         self.canvas.bind("<ButtonRelease-1>", self._release)
+        self.canvas.bind("<Double-Button-1>", self._double_click)
         self.canvas.bind("<Button-3>", self._right_click)
+        self.win.bind("<Button-3>", self._right_click)
         if IS_MAC:
             self.canvas.bind("<Button-2>", self._right_click)
+            self.win.bind("<Button-2>", self._right_click)
             self.canvas.bind("<Control-Button-1>", self._right_click)
+            self.win.bind("<Control-Button-1>", self._right_click)
         self.canvas.bind("<MouseWheel>", self._mouse_wheel)
         self.win.bind("<MouseWheel>", self._mouse_wheel)
+        # Keyboard zoom: Cmd+=/Cmd+- on macOS, Ctrl+=/Ctrl+- elsewhere
+        mod = "Command" if IS_MAC else "Control"
+        root.bind_all(f"<{mod}-equal>", lambda e: self._zoom_in())
+        root.bind_all(f"<{mod}-minus>", lambda e: self._zoom_out())
+        root.bind_all(f"<{mod}-plus>", lambda e: self._zoom_in())
         self.canvas.bind("<Enter>", self._show_tooltip)
         self.canvas.bind("<Leave>", self._hide_tooltip)
 
@@ -583,6 +608,8 @@ class FloatingCat:
         self.win.geometry(f"{self.cat_width}x{self.cat_height}+{x}+{y}")
 
     def _on_state(self, new_state: CatState):
+        if self._is_catball:
+            return
         if new_state == CatState.IDLE:
             self._start_idle_cycling()
         else:
@@ -621,11 +648,22 @@ class FloatingCat:
             self._idle_cycle_after_id = None
 
     def _animate(self):
+        if self._is_catball:
+            self.win.after(ANIMATION_INTERVAL_MS, self._animate)
+            return
         if self._current_frames:
-            frame = self._current_frames[self._frame_idx % len(self._current_frames)]
-            self.canvas.delete("all")
-            self.canvas.create_image(self.cat_width // 2, self.cat_height // 2, image=frame)
-            self._image_ref = frame
+            idx = self._frame_idx % len(self._current_frames)
+            if self._mac_image_view is not None:
+                # macOS: render via native NSImageView for transparency
+                src = self._current_source_frames[idx % len(self._current_source_frames)]
+                update_mac_image(self._mac_image_view, src)
+            else:
+                frame = self._current_frames[idx]
+                self.canvas.delete("all")
+                self.canvas.create_image(
+                    self.cat_width // 2, self.cat_height // 2, image=frame,
+                )
+                self._image_ref = frame
             self._frame_idx += 1
         self.win.after(ANIMATION_INTERVAL_MS, self._animate)
 
@@ -666,6 +704,7 @@ class FloatingCat:
         self.cat_height = new_h
         self.canvas.configure(width=new_w, height=new_h)
         self.win.geometry(f"{new_w}x{new_h}+{new_x}+{new_y}")
+        resize_mac_image_view(self._mac_image_view, new_w, new_h)
 
     def _mouse_wheel(self, event):
         step = 0
@@ -702,42 +741,203 @@ class FloatingCat:
             self._drag_sy = e.y_root
 
     def _release(self, e):
-        if not self._dragged:
+        if self._dragged:
+            return
+        if IS_MAC:
+            # Delay single-click so double-click can cancel it
+            if self._click_after_id is not None:
+                self.win.after_cancel(self._click_after_id)
+            self._click_after_id = self.win.after(250, self._do_single_click)
+        else:
+            if self._is_catball:
+                self._exit_catball_mode()
+            else:
+                self.on_click()
+
+    def _do_single_click(self):
+        self._click_after_id = None
+        if self._is_catball:
+            self._exit_catball_mode()
+        else:
             self.on_click()
 
+    def _double_click(self, e):
+        # Cancel pending single-click
+        if self._click_after_id is not None:
+            self.win.after_cancel(self._click_after_id)
+            self._click_after_id = None
+        if self._is_catball:
+            self._exit_catball_mode()
+            return
+        self._right_click(e)
+
+    def _zoom_in(self):
+        self._scale = min(MAX_CAT_SCALE, round(self._scale + CAT_SCALE_STEP, 2))
+        self._resize_window_keep_center()
+        if self._current_source_frames:
+            self._set_source_frames(self._current_source_frames, reset_idx=False)
+
+    def _zoom_out(self):
+        self._scale = max(MIN_CAT_SCALE, round(self._scale - CAT_SCALE_STEP, 2))
+        self._resize_window_keep_center()
+        if self._current_source_frames:
+            self._set_source_frames(self._current_source_frames, reset_idx=False)
+
     def _right_click(self, e):
-        self._ctx_menu.show(e.x_root, e.y_root, [
+        if self._is_catball:
+            return
+        items = [
             ("隐藏猫猫", self._hide_self),
             None,
             ("退出", self.root.quit),
-        ])
+        ]
+        self._ctx_menu.show(e.x_root, e.y_root, items)
 
     def _hide_self(self):
-        """Hide cat and show a tiny pink dot to restore."""
+        """Hide cat and show a catball indicator to restore."""
         self._hide_tooltip(None)
         if self._on_hide_chat:
             self._on_hide_chat()
-        self.win.withdraw()
-        self._show_mini_indicator()
+        self._enter_catball_mode()
+
+    def _enter_catball_mode(self):
+        """Shrink the cat window to a catball image (all platforms)."""
+        sz = 48
+        self._is_catball = True
+
+        # Load catball image (cached)
+        if self._catball_pil is None:
+            try:
+                p = (Path(__file__).parent
+                     / "ui" / "assets" / "catball_mini.png")
+                self._catball_pil = Image.open(p).convert("RGBA")
+            except Exception:
+                pass
+
+        # Save current state for restoration
+        self._pre_cb_x = self.win.winfo_x()
+        self._pre_cb_y = self.win.winfo_y()
+        self._pre_cb_w = self.cat_width
+        self._pre_cb_h = self.cat_height
+
+        # Shrink to catball size, centred on old position
+        cx = self._pre_cb_x + self._pre_cb_w // 2 - sz // 2
+        cy = self._pre_cb_y + self._pre_cb_h // 2 - sz // 2
+        self.cat_width = sz
+        self.cat_height = sz
+        self.canvas.configure(width=sz, height=sz)
+        self.win.geometry(f"{sz}x{sz}+{cx}+{cy}")
+
+        if self._catball_pil is not None:
+            if self._mac_image_view is not None:
+                # macOS: push via native NSImageView
+                resize_mac_image_view(self._mac_image_view, sz, sz)
+                update_mac_image(self._mac_image_view, self._catball_pil)
+            else:
+                # Windows / Linux: push via canvas create_image
+                self.canvas.delete("all")
+                if IS_WIN:
+                    bg = Image.new("RGB", (sz, sz), (1, 1, 1))
+                    bg.paste(self._catball_pil,
+                             mask=self._catball_pil.split()[3])
+                    self._catball_photo = ImageTk.PhotoImage(bg)
+                else:
+                    self._catball_photo = ImageTk.PhotoImage(
+                        self._catball_pil)
+                self.canvas.create_image(
+                    sz // 2, sz // 2, image=self._catball_photo)
+
+    def _exit_catball_mode(self):
+        """Restore cat from catball mode (all platforms)."""
+        self._is_catball = False
+
+        # Restore at catball's current location (user may have dragged it)
+        cur_x = self.win.winfo_x()
+        cur_y = self.win.winfo_y()
+        new_x = max(0, cur_x + 24 - self._pre_cb_w // 2)
+        new_y = max(0, cur_y + 24 - self._pre_cb_h // 2)
+        self.cat_width = self._pre_cb_w
+        self.cat_height = self._pre_cb_h
+        self.canvas.configure(width=self.cat_width, height=self.cat_height)
+        self.win.geometry(
+            f"{self.cat_width}x{self.cat_height}+{new_x}+{new_y}")
+        resize_mac_image_view(
+            self._mac_image_view, self.cat_width, self.cat_height)
+
+        # Re-render frames so the animation resumes correctly
+        if self._current_source_frames:
+            self._set_source_frames(
+                self._current_source_frames, reset_idx=False)
 
     def _show_mini_indicator(self):
+        sz = 48
         if self._mini_win is None:
             self._mini_win = tk.Toplevel(self.root)
             apply_borderless(self._mini_win)
             self._mini_win.attributes("-topmost", True)
-            sz = 26
-            cvs = tk.Canvas(self._mini_win, width=sz, height=sz,
-                            bg="#e88fb2", highlightthickness=0, cursor="hand2")
-            cvs.pack()
-            cvs.create_oval(3, 3, sz - 3, sz - 3, fill="#f4cfda",
-                            outline="#d07098", width=2)
-            cvs.create_text(sz // 2, sz // 2, text="\u2022",
-                            font=("Segoe UI", 8), fill="#d07098")
+
+            # Load the catball image
+            catball_path = (Path(__file__).parent
+                           / "ui" / "assets" / "catball_mini.png")
+            try:
+                catball_pil = Image.open(catball_path).convert("RGBA")
+            except Exception:
+                catball_pil = None
+
+            if IS_MAC:
+                # NSImageView renders RGBA with proper alpha on transparent
+                # macOS windows (tkinter create_image is invisible there).
+                cvs = tk.Canvas(self._mini_win, width=sz, height=sz,
+                                bg="systemTransparent",
+                                highlightthickness=0, cursor="hand2")
+                cvs.pack()
+                self._mini_win.update_idletasks()
+                self._mini_iv = setup_mac_image_window(
+                    self._mini_win, sz, sz)
+                if self._mini_iv is not None and catball_pil is not None:
+                    update_mac_image(self._mini_iv, catball_pil)
+            elif IS_WIN:
+                apply_transparent_color(self._mini_win, TRANSPARENT_COLOR)
+                cvs = tk.Canvas(self._mini_win, width=sz, height=sz,
+                                bg=TRANSPARENT_COLOR,
+                                highlightthickness=0, cursor="hand2")
+                cvs.pack()
+                if catball_pil is not None:
+                    # Composite onto TRANSPARENT_COLOR; those pixels become
+                    # see-through via Windows -transparentcolor.
+                    bg = Image.new("RGB", (sz, sz), (1, 1, 1))
+                    bg.paste(catball_pil, mask=catball_pil.split()[3])
+                    self._mini_photo = ImageTk.PhotoImage(bg)
+                    cvs.create_image(sz // 2, sz // 2,
+                                     image=self._mini_photo)
+            else:
+                cvs = tk.Canvas(self._mini_win, width=sz, height=sz,
+                                bg="#f0f0f0", highlightthickness=0,
+                                cursor="hand2")
+                cvs.pack()
+                if catball_pil is not None:
+                    self._mini_photo = ImageTk.PhotoImage(catball_pil)
+                    cvs.create_image(sz // 2, sz // 2,
+                                     image=self._mini_photo)
+
             cvs.bind("<Button-1>", lambda e: self._restore_from_mini())
-        cx = self.win.winfo_x() + self.cat_width // 2 - 13
-        cy = self.win.winfo_y() + self.cat_height // 2 - 13
-        self._mini_win.geometry(f"26x26+{cx}+{cy}")
+
+        cx = self.win.winfo_x() + self.cat_width // 2 - sz // 2
+        cy = self.win.winfo_y() + self.cat_height // 2 - sz // 2
+        self._mini_win.geometry(f"{sz}x{sz}+{cx}+{cy}")
         self._mini_win.deiconify()
+
+        # macOS: re-push the image after the window is positioned & visible
+        if IS_MAC and self._mini_iv is not None:
+            def _refresh():
+                try:
+                    p = (Path(__file__).parent
+                         / "ui" / "assets" / "catball_mini.png")
+                    update_mac_image(self._mini_iv,
+                                     Image.open(p).convert("RGBA"))
+                except Exception:
+                    pass
+            self._mini_win.after(50, _refresh)
 
     def _restore_from_mini(self):
         if self._mini_win:
@@ -745,16 +945,25 @@ class FloatingCat:
         self.win.deiconify()
 
     def _show_tooltip(self, event):
-        if self._tooltip:
+        if self._tooltip or self._is_catball:
             return
         self._tooltip = tk.Toplevel(self.win)
         self._tooltip.overrideredirect(True)
         self._tooltip.attributes("-topmost", True)
         apply_transparent_color(self._tooltip, TRANSPARENT_COLOR)
-        tip_bg = TRANSPARENT_COLOR if IS_WIN else "#fff0e8"
+        apply_mac_transparent(self._tooltip)
+        if IS_MAC:
+            tip_bg = "systemTransparent"
+        elif IS_WIN:
+            tip_bg = TRANSPARENT_COLOR
+        else:
+            tip_bg = "#fff0e8"
         self._tooltip.configure(bg=tip_bg)
 
-        text = "滚轮缩放  |  左键聊天  |  右键菜单"
+        if IS_MAC:
+            text = "点击聊天  |  ⌘+/⌘- 缩放  |  双击菜单"
+        else:
+            text = "滚轮缩放  |  左键聊天  |  右键菜单"
         tip_font = tkfont.Font(family="Segoe UI", size=12)
         text_w = tip_font.measure(text)
         w = text_w + 40  # padding on both sides
@@ -890,6 +1099,7 @@ class ChatWindow:
         self._refresh_message_wraplengths()
         self.window.focus_force()
         self.input_entry.focus_set()
+        mac_make_key_window(self.window)
         # Keep cat visible above the chat
         if self.cat_win:
             self.cat_win.lift()
@@ -921,15 +1131,28 @@ class ChatWindow:
     def _create(self):
         self.window = ctk.CTkToplevel(self.root)
         apply_borderless_focusable(self.window)
-        self.window.geometry(f"{DEFAULT_CHAT_WIDTH}x{DEFAULT_CHAT_HEIGHT}")
+        # Adapt chat size to screen; wm_geometry bypasses CTk DPI scaling
+        sw = self.root.winfo_screenwidth()
+        sh = self.root.winfo_screenheight()
+        chat_w = min(DEFAULT_CHAT_WIDTH, int(sw * 0.3))
+        chat_h = min(DEFAULT_CHAT_HEIGHT, int(sh * 0.6))
+        chat_w = max(MIN_CHAT_WIDTH, chat_w)
+        chat_h = max(MIN_CHAT_HEIGHT, chat_h)
+        self.window.wm_geometry(f"{chat_w}x{chat_h}")
         # On Windows the transparent colour trick gives true rounded corners;
-        # on other platforms we fall back to the surface colour.
-        self.window.configure(fg_color=_CHAT_TRANSPARENT if IS_WIN else CHAT_SURFACE_ELEVATED)
+        # on macOS we use PyObjC clearColor for the same effect.
+        if IS_WIN:
+            self.window.configure(fg_color=_CHAT_TRANSPARENT)
+        elif IS_MAC:
+            self.window.configure(fg_color="systemTransparent")
+        else:
+            self.window.configure(fg_color=CHAT_SURFACE_ELEVATED)
         self.window.attributes("-topmost", True)
         self.window.bind("<Configure>", self._on_window_resize)
         self.window.update_idletasks()
-        # Transparent corners → true irregular rounded shape (Windows only)
+        # Transparent corners → true irregular rounded shape
         apply_transparent_color(self.window, _CHAT_TRANSPARENT)
+        apply_mac_clear_bg(self.window)
         apply_borderless_shadow(self.window)
 
         # ── Main shell — rounded card that IS the visible window ──

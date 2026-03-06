@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "opencat"
-version = "0.1.9"
+version = "0.2.0"
 description = "OpenCat — a cute floating desktop cat companion for OpenClaw AI"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -19,6 +19,7 @@ dependencies = [
     "customtkinter>=5.2",
     "Pillow>=10.0",
     "websocket-client>=1.6",
+    "pyobjc-framework-Cocoa>=9.0; sys_platform == 'darwin'",
 ]
 
 [project.urls]
@@ -33,4 +34,4 @@ opencat = "opencat.cli:main"
 include = ["opencat*"]
 
 [tool.setuptools.package-data]
-"opencat.ui" = ["*.html", "*.css", "*.js", "assets/*.json", "assets/*.gif", "assets/*.md"]
+"opencat.ui" = ["*.html", "*.css", "*.js", "assets/*.json", "assets/*.gif", "assets/*.png", "assets/*.md"]
