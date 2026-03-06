@@ -57,20 +57,18 @@ def apply_borderless_focusable(win) -> None:
     """Make a window borderless while keeping keyboard focus ability.
 
     Windows/Linux: overrideredirect(True) — keyboard works fine.
-    macOS: keep the native title bar so the window can receive keyboard
-    focus (overrideredirect windows cannot on macOS).  The title bar is
-    hidden as much as possible via the 'utility' window style.
+    macOS: overrideredirect windows CANNOT receive keyboard focus, so we
+    use a 'floating' NSPanel with 'noTitleBar'.  Floating panels can
+    receive keyboard input (unlike plain/borderless NSWindows).
     """
     if IS_MAC:
         try:
-            # Use a utility window style — small title bar but can receive
-            # keyboard focus unlike overrideredirect windows.
             win.tk.call(
                 "::tk::unsupported::MacWindowStyle", "style",
-                win._w, "utility", "closeBox",
+                win._w, "floating", "noTitleBar",
             )
         except Exception:
-            pass  # Fall through — keep default decorations
+            win.overrideredirect(True)
     else:
         win.overrideredirect(True)
 
