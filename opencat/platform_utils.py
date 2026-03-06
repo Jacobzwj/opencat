@@ -36,17 +36,42 @@ def get_work_area(root) -> tuple[int, int, int, int]:
 
 
 def apply_transparent_color(win, color: str) -> None:
-    """Apply pixel-level transparency via -transparentcolor (Windows only).
+    """Apply pixel-level transparency.
 
-    On macOS / Linux the call is silently skipped — the window will simply
-    show its background colour.  Callers should set a suitable fallback
-    bg if cross-platform look matters.
+    Windows: -transparentcolor makes the exact colour fully transparent.
+    macOS:   -transparent + systemTransparent bg gives true transparency.
+    Linux:   silently skipped (no reliable equivalent).
     """
     if IS_WIN:
         try:
             win.attributes("-transparentcolor", color)
         except Exception:
             pass
+    elif IS_MAC:
+        try:
+            win.attributes("-transparent", True)
+            win.config(bg="systemTransparent")
+        except Exception:
+            pass
+
+
+def apply_borderless(win) -> None:
+    """Make a window borderless in a platform-appropriate way.
+
+    Windows/Linux: overrideredirect(True).
+    macOS: use 'plain' window style so the window can still receive
+    keyboard focus (overrideredirect windows cannot on macOS).
+    """
+    if IS_MAC:
+        try:
+            win.tk.call(
+                "::tk::unsupported::MacWindowStyle", "style",
+                win._w, "plain", "none",
+            )
+        except Exception:
+            win.overrideredirect(True)
+    else:
+        win.overrideredirect(True)
 
 
 def apply_borderless_shadow(win) -> None:

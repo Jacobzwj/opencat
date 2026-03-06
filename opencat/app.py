@@ -28,6 +28,8 @@ from opencat import config
 from opencat.history import SessionManager
 from opencat.platform_utils import (
     IS_WIN,
+    IS_MAC,
+    apply_borderless,
     apply_borderless_shadow,
     apply_transparent_color,
     dwm_flush,
@@ -186,10 +188,10 @@ class _CatContextMenu:
         self.dismiss()
 
         self._win = tk.Toplevel(self._parent)
-        self._win.overrideredirect(True)
+        apply_borderless(self._win)
         self._win.attributes("-topmost", True)
         apply_transparent_color(self._win, TRANSPARENT_COLOR)
-        bg_color = TRANSPARENT_COLOR if IS_WIN else "#fff0e8"
+        bg_color = TRANSPARENT_COLOR if IS_WIN else ("systemTransparent" if IS_MAC else "#fff0e8")
         self._win.configure(bg=bg_color)
         self._win.withdraw()
 
@@ -534,10 +536,10 @@ class FloatingCat:
         # Separate toplevel for the cat — keeps root hidden so CTkToplevel
         # creation won't resize or reposition the cat window.
         self.win = tk.Toplevel(root)
-        self.win.overrideredirect(True)
+        apply_borderless(self.win)
         self.win.attributes("-topmost", True)
         apply_transparent_color(self.win, TRANSPARENT_COLOR)
-        cat_bg = TRANSPARENT_COLOR if IS_WIN else "#f0f0f0"
+        cat_bg = TRANSPARENT_COLOR if IS_WIN else ("systemTransparent" if IS_MAC else "#f0f0f0")
         self.win.configure(bg=cat_bg)
 
         self.canvas = tk.Canvas(self.win, width=self.cat_width, height=self.cat_height,
@@ -707,7 +709,7 @@ class FloatingCat:
     def _show_mini_indicator(self):
         if self._mini_win is None:
             self._mini_win = tk.Toplevel(self.root)
-            self._mini_win.overrideredirect(True)
+            apply_borderless(self._mini_win)
             self._mini_win.attributes("-topmost", True)
             sz = 26
             cvs = tk.Canvas(self._mini_win, width=sz, height=sz,
@@ -735,7 +737,7 @@ class FloatingCat:
         self._tooltip.overrideredirect(True)
         self._tooltip.attributes("-topmost", True)
         apply_transparent_color(self._tooltip, TRANSPARENT_COLOR)
-        tip_bg = TRANSPARENT_COLOR if IS_WIN else "#fff0e8"
+        tip_bg = TRANSPARENT_COLOR if IS_WIN else ("systemTransparent" if IS_MAC else "#fff0e8")
         self._tooltip.configure(bg=tip_bg)
 
         text = "滚轮缩放  |  左键聊天  |  右键菜单"
@@ -904,7 +906,7 @@ class ChatWindow:
 
     def _create(self):
         self.window = ctk.CTkToplevel(self.root)
-        self.window.overrideredirect(True)
+        apply_borderless(self.window)
         self.window.geometry(f"{DEFAULT_CHAT_WIDTH}x{DEFAULT_CHAT_HEIGHT}")
         # On Windows the transparent colour trick gives true rounded corners;
         # on other platforms we fall back to the surface colour.
