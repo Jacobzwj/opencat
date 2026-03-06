@@ -1194,7 +1194,7 @@ class ChatWindow:
         self._grip = ctk.CTkLabel(
             self._shell, text="\u25e2", font=("Segoe UI", 10),
             text_color=CHAT_SCROLL, width=14, height=14,
-            fg_color="transparent", cursor="size_nw_se",
+            fg_color="transparent", cursor="bottom_right_corner" if not IS_WIN else "size_nw_se",
         )
         self._grip.place(relx=1.0, rely=1.0, anchor="se", x=-10, y=-10)
         self._grip.bind("<ButtonPress-1>", self._grip_press)
