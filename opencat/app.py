@@ -540,7 +540,17 @@ class FloatingCat:
         apply_borderless(self.win)
         self.win.attributes("-topmost", True)
         apply_transparent_color(self.win, TRANSPARENT_COLOR)
-        cat_bg = TRANSPARENT_COLOR if IS_WIN else "#f0f0f0"
+        if IS_MAC:
+            # macOS: use native transparency (only for the cat sprite window)
+            try:
+                self.win.attributes("-transparent", True)
+                cat_bg = "systemTransparent"
+            except Exception:
+                cat_bg = "#f0f0f0"
+        elif IS_WIN:
+            cat_bg = TRANSPARENT_COLOR
+        else:
+            cat_bg = "#f0f0f0"
         self.win.configure(bg=cat_bg)
 
         self.canvas = tk.Canvas(self.win, width=self.cat_width, height=self.cat_height,
@@ -551,6 +561,9 @@ class FloatingCat:
         self.canvas.bind("<B1-Motion>", self._drag)
         self.canvas.bind("<ButtonRelease-1>", self._release)
         self.canvas.bind("<Button-3>", self._right_click)
+        if IS_MAC:
+            self.canvas.bind("<Button-2>", self._right_click)
+            self.canvas.bind("<Control-Button-1>", self._right_click)
         self.canvas.bind("<MouseWheel>", self._mouse_wheel)
         self.win.bind("<MouseWheel>", self._mouse_wheel)
         self.canvas.bind("<Enter>", self._show_tooltip)
