@@ -39,37 +39,38 @@ def apply_transparent_color(win, color: str) -> None:
     """Apply pixel-level transparency.
 
     Windows: -transparentcolor makes the exact colour fully transparent.
-    macOS:   -transparent + systemTransparent bg gives true transparency.
-    Linux:   silently skipped (no reliable equivalent).
+    macOS/Linux: silently skipped (no reliable cross-platform equivalent).
     """
     if IS_WIN:
         try:
             win.attributes("-transparentcolor", color)
         except Exception:
             pass
-    elif IS_MAC:
-        try:
-            win.attributes("-transparent", True)
-            win.config(bg="systemTransparent")
-        except Exception:
-            pass
 
 
 def apply_borderless(win) -> None:
-    """Make a window borderless in a platform-appropriate way.
+    """Make a window borderless (all platforms use overrideredirect)."""
+    win.overrideredirect(True)
 
-    Windows/Linux: overrideredirect(True).
-    macOS: use 'plain' window style so the window can still receive
-    keyboard focus (overrideredirect windows cannot on macOS).
+
+def apply_borderless_focusable(win) -> None:
+    """Make a window borderless while keeping keyboard focus ability.
+
+    Windows/Linux: overrideredirect(True) — keyboard works fine.
+    macOS: keep the native title bar so the window can receive keyboard
+    focus (overrideredirect windows cannot on macOS).  The title bar is
+    hidden as much as possible via the 'utility' window style.
     """
     if IS_MAC:
         try:
+            # Use a utility window style — small title bar but can receive
+            # keyboard focus unlike overrideredirect windows.
             win.tk.call(
                 "::tk::unsupported::MacWindowStyle", "style",
-                win._w, "plain", "none",
+                win._w, "utility", "closeBox",
             )
         except Exception:
-            win.overrideredirect(True)
+            pass  # Fall through — keep default decorations
     else:
         win.overrideredirect(True)
 
